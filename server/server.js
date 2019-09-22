@@ -3,27 +3,36 @@ var bodyParser = require('body-parser');
 var logger = require('morgan');
 var methodOverride = require('method-override')
 var cors = require('cors');
-
+var MongoClient = require('mongodb').MongoClient;
 var app = express();
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(methodOverride());
 app.use(cors());
 
-app.post('/checkname', function(req, res){
+app.post('/CreateUnidade', function(req, res){
+    
+    //define caminho do banco
+    var uri = "mongodb+srv://usuario:usuario@mongodbblackbook-zdqhv.azure.mongodb.net/test?retryWrites=true&w=majority"
 
-    if(req.body.name.toLowerCase() === 'homer'){
+    //cria conexao com o banco de dados
+    MongoClient.connect(uri,{ useNewUrlParser: true }, function(err,client){const collection = client.db("test").collection("unidade");
+    console.log("connected");
 
-        res.status(401).send({message: 'Sorry, no Homer\'s!'});
+    //Define os dados que serao inseridos no banco
+    var ins={Codigo: req.body.codigo, Nome: req.body.nome, Senha: req.body.senha};
 
-    } else {
+    //CREATE
+    collection.insertOne(ins, function(err,res){
+      console.log("data inserted");
+    })
 
-        res.send({
-            passed: true,
-            message: 'Welcome, friend!'
-        });
+    client.close();
+    })
 
-    }
+    res.send({
+        passed: true,
+    });
 
 });
 
